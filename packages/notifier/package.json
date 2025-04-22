@@ -36,10 +36,10 @@
     "@endo/errors": "^1.2.8",
     "@agoric/internal": "^0.3.2",
     "@agoric/vat-data": "^0.5.2",
-    "@endo/far": "^1.1.9",
+    "@endo/far": "^1.1.11",
     "@endo/marshal": "^1.6.2",
-    "@endo/patterns": "^1.4.7",
-    "@endo/promise-kit": "^1.1.8"
+    "@endo/patterns": "^1.5.0",
+    "@endo/promise-kit": "^1.1.10"
   },
   "devDependencies": {
     "@agoric/kmarshal": "^0.1.0",

@@ -38,10 +38,10 @@
     "@agoric/zoe": "^0.26.2",
     "@agoric/zone": "^0.2.2",
     "@endo/eventual-send": "^1.2.8",
-    "@endo/far": "^1.1.9",
-    "@endo/marshal": "^1.6.2",
+    "@endo/far": "^1.1.11",
+    "@endo/marshal": "^1.6.4",
     "@endo/nat": "^5.0.13",
-    "@endo/promise-kit": "^1.1.8"
+    "@endo/promise-kit": "^1.1.10"
   },
   "files": [
     "src/"

@@ -23,7 +23,7 @@
     "@agoric/internal": "dev",
     "@agoric/synthetic-chain": "^0.4.3",
     "@agoric/zoe": "dev",
-    "@endo/errors": "1.2.7",
+    "@endo/errors": "1.2.10",
     "@endo/init": "^1.1.5",
     "@endo/marshal": "^1.5.4",
     "agoric": "dev",

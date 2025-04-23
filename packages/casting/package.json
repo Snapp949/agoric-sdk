@@ -31,9 +31,9 @@
     "@cosmjs/tendermint-rpc": "^0.32.3",
     "@endo/errors": "^1.2.8",
     "@endo/far": "^1.1.9",
-    "@endo/init": "^1.1.7",
-    "@endo/lockdown": "^1.0.13",
-    "@endo/marshal": "^1.6.2",
+    "@endo/init": "^1.1.9",
+    "@endo/lockdown": "^1.0.15",
+    "@endo/marshal": "^1.6.4",
     "@endo/promise-kit": "^1.1.8"
   },
   "devDependencies": {

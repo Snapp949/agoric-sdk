@@ -37,7 +37,7 @@
     "@endo/netstring": "^1.0.13",
     "@endo/promise-kit": "^1.1.8",
     "@endo/stream": "^1.2.8",
-    "@endo/stream-node": "^1.1.8",
+    "@endo/stream-node": "^1.1.10",
     "glob": "^7.1.6",
     "tmp": "^0.2.1"
   },

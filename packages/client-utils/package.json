@@ -36,10 +36,10 @@
     "@cosmjs/tendermint-rpc": "^0.32.3",
     "@endo/common": "^1.2.8",
     "@endo/errors": "^1.2.8",
-    "@endo/marshal": "^1.6.2",
-    "@endo/pass-style": "^1.4.7",
-    "@endo/patterns": "^1.4.7",
-    "@endo/promise-kit": "^1.1.8"
+    "@endo/marshal": "^1.6.4",
+    "@endo/pass-style": "^1.5.0",
+    "@endo/patterns": "^1.5.0",
+    "@endo/promise-kit": "^1.1.10"
   },
   "ava": {
     "extensions": {

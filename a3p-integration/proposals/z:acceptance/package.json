@@ -25,7 +25,7 @@
     "@endo/init": "^1.1.6",
     "@endo/marshal": "^1.6.1",
     "agoric": "dev",
-    "ava": "^6.1.2",
+    "ava": "^6.3.0",
     "execa": "9.1.0"
   },
   "$comment": "UNTIL https://github.com/Agoric/agoric-sdk/issues/10259",

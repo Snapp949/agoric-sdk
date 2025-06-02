@@ -19,7 +19,7 @@
     "@endo/init": "^1.0.4",
     "agoric": "dev",
     "ava": "^6.3.0",
-    "execa": "^8.0.1"
+    "execa": "^9.6.0"
   },
   "ava": {
     "concurrency": 1

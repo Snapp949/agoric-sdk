@@ -1,5 +1,5 @@
 # "ubuntu:latest" refers to latest Ubuntu LTS version, recommended for general use
-FROM ubuntu:latest
+FROM ubuntu:24.10
 LABEL maintainer="mfig@agoric.com"
 
 COPY init.sh /usr/local/bin/init

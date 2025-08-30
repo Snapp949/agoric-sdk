@@ -1,0 +1,169 @@
+name: Rerun cancelled workflow runs
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'   # every 15 minutes (adjust as needed)
+  workflow_dispatch: {}      # manual trigger
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  rerun-cancelled:
+    runs-on: ubuntu-latest
+    env:
+      MAX_ATTEMPTS: '3'             # how many times to attempt rerun for a given head SHA
+      POLL_INTERVAL_SECONDS: '10'   # seconds between polling checks
+      POLL_TIMEOUT_SECONDS: '900'   # how long to wait (seconds) for rerun to complete (15 min)
+      INCLUDE_FAILURES: 'false'     # set to 'true' to include failed runs as well
+    steps:
+      - name: Rerun cancelled runs (list & follow)
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const maxAttempts = parseInt(process.env.MAX_ATTEMPTS || '3', 10);
+            const pollInterval = parseInt(process.env.POLL_INTERVAL_SECONDS || '10', 10) * 1000;
+            const pollTimeout = parseInt(process.env.POLL_TIMEOUT_SECONDS || '900', 10) * 1000;
+            const includeFailures = (process.env.INCLUDE_FAILURES || 'false').toLowerCase() === 'true';
+
+            core.info(`Scanning ${owner}/${repo} for cancelled runs (includeFailures=${includeFailures})`);
+
+            // Helper to list recent runs (paginate)
+            const listRuns = async () => {
+              return await github.paginate(github.rest.actions.listWorkflowRunsForRepo, {
+                owner,
+                repo,
+                per_page: 100
+              });
+            };
+
+            const allRuns = await listRuns();
+            const targetConclusions = ['cancelled'];
+            if (includeFailures) targetConclusions.push('failure');
+
+            const cancelledRuns = allRuns.filter(r => targetConclusions.includes(r.conclusion));
+            core.info(`Found ${cancelledRuns.length} runs matching (${targetConclusions.join(', ')})`);
+
+            // Utility to wait for a condition with timeout
+            const waitFor = async (checkFn, intervalMs, timeoutMs) => {
+              const start = Date.now();
+              while (Date.now() - start < timeoutMs) {
+                const val = await checkFn();
+                if (val !== null && val !== undefined) return val;
+                await new Promise(r => setTimeout(r, intervalMs));
+              }
+              return null;
+            };
+
+            for (const run of cancelledRuns) {
+              try {
+                core.info(`Processing run id=${run.id}, workflow_id=${run.workflow_id}, head_sha=${run.head_sha}, created_at=${run.created_at}`);
+
+                // attempt rerun API
+                core.info(`Requesting rerun for run ${run.id}`);
+                await github.request('POST /repos/{owner}/{repo}/actions/runs/{run_id}/rerun', {
+                  owner, repo, run_id: run.id
+                });
+
+                // Wait for a new run with the same head_sha to appear (but different id and newer created_at)
+                const oldCreated = new Date(run.created_at);
+
+                const findNewRun = async () => {
+                  const resp = await github.rest.actions.listWorkflowRunsForRepo({
+                    owner,
+                    repo,
+                    head_sha: run.head_sha,
+                    per_page: 50
+                  });
+                  const hits = resp.data.workflow_runs || resp.data?.workflow_runs || [];
+                  // find a run with same head_sha but different id and created after the old one
+                  for (const r of hits) {
+                    if (r.id !== run.id && new Date(r.created_at) > oldCreated) {
+                      return r;
+                    }
+                  }
+                  return null;
+                };
+
+                core.info(`Waiting up to ${pollTimeout/1000}s for rerun to appear for head ${run.head_sha}`);
+                const newRun = await waitFor(findNewRun, pollInterval, pollTimeout);
+                if (!newRun) {
+                  core.warning(`No rerun detected for original run ${run.id} (head ${run.head_sha}) within timeout`);
+                  continue;
+                }
+
+                core.info(`Found new run id=${newRun.id}, status=${newRun.status}, conclusion=${newRun.conclusion}`);
+
+                // Follow the new run until it completes or requires approval
+                const checkConclusion = async () => {
+                  const view = await github.rest.actions.getWorkflowRun({
+                    owner,
+                    repo,
+                    run_id: newRun.id
+                  });
+                  const r = view.data;
+                  if (r.status === 'completed') {
+                    return r.conclusion || r.status;
+                  }
+                  // If run shows approval required states, surface it
+                  if (r.status === 'requested' || r.status === 'waiting') {
+                    return { actionRequired: true, run: r };
+                  }
+                  return null; // continue waiting
+                };
+
+                core.info(`Following new run ${newRun.id} until completion (timeout ${pollTimeout/1000}s)`);
+                const result = await waitFor(checkConclusion, pollInterval, pollTimeout);
+
+                if (result === null) {
+                  core.warning(`Timed out waiting for rerun ${newRun.id} to complete`);
+                } else if (typeof result === 'object' && result.actionRequired) {
+                  core.notice(`Run ${newRun.id} requires manual approval: ${result.run.html_url}`);
+                } else {
+                  core.info(`Run ${newRun.id} concluded: ${result}`);
+                  // If run failed or cancelled again and we have attempts left, requeue a rerun attempt in this same job loop
+                  let attempts = 1;
+                  while (attempts < maxAttempts && (result !== 'success')) {
+                    attempts++;
+                    core.info(`Attempt ${attempts}/${maxAttempts} to rerun head ${run.head_sha}`);
+                    await github.request('POST /repos/{owner}/{repo}/actions/runs/{run_id}/rerun', {
+                      owner, repo, run_id: newRun.id
+                    });
+                    // find the newest run with same head_sha
+                    const fresh = await waitFor(findNewRun, pollInterval, pollTimeout);
+                    if (!fresh) {
+                      core.warning(`No new run created by attempt ${attempts} for head ${run.head_sha}`);
+                      break;
+                    }
+                    core.info(`Following newly created run ${fresh.id}`);
+                    const followResult = await waitFor(async () => {
+                      const vr = await github.rest.actions.getWorkflowRun({
+                        owner, repo, run_id: fresh.id
+                      });
+                      if (vr.data.status === 'completed') return vr.data.conclusion || vr.data.status;
+                      if (vr.data.status === 'requested' || vr.data.status === 'waiting') return { actionRequired: true, run: vr.data };
+                      return null;
+                    }, pollInterval, pollTimeout);
+
+                    if (followResult === null) {
+                      core.warning(`Attempt ${attempts} timed out waiting for run ${fresh.id}`);
+                      break;
+                    } else if (typeof followResult === 'object' && followResult.actionRequired) {
+                      core.notice(`Run ${fresh.id} requires manual approval: ${followResult.run.html_url}`);
+                      break;
+                    } else {
+                      core.info(`Run ${fresh.id} concluded: ${followResult}`);
+                      if (followResult === 'success') break;
+                    }
+                  }
+                }
+
+              } catch (err) {
+                core.error(`Error processing run ${run.id}: ${err.message || err}`);
+              }
+            }

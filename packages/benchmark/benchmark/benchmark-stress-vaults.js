@@ -9,8 +9,8 @@ bench.addBenchmark('stress vaults', {
   executeRound: async (context, round) => {
     const { alice, bob, carol } = context.actors;
 
-    const openVault = async (actor, i, n, r) => {
-      const offerId = `stress-vault-${actor.constructor.name}-${i}-of-${n}-round-${r}`;
+    const openVault = async (actorName, actor, i, n, r) => {
+      const offerId = `stress-vault-${actorName}-${i}-of-${n}-round-${r}`;
       await actor.executeOfferMaker(Offers.vaults.OpenVault, {
         offerId,
         collateralBrandKey,
@@ -26,16 +26,16 @@ bench.addBenchmark('stress vaults', {
       );
     };
 
-    const openN = async (actor, n) => {
+    const openN = async (actorName, actor, n) => {
       const range = [...Array(n)].map((_, i) => i + 1);
-      await Promise.all(range.map(i => openVault(actor, i, n, round)));
+      await Promise.all(range.map(i => openVault(actorName, actor, i, n, round)));
     };
 
     const roundSize = context.options.size ? Number(context.options.size) : 3;
     await Promise.all([
-      openN(alice, roundSize),
-      openN(bob, roundSize),
-      openN(carol, roundSize),
+      openN('alice', alice, roundSize),
+      openN('bob', bob, roundSize),
+      openN('carol', carol, roundSize),
     ]);
   },
 });

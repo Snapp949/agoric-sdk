@@ -1,7 +1,6 @@
-// eslint-disable-next-line import/order
 import { bench } from '../src/benchmarkerator.js';
 
-import { assert } from '@endo/errors';
+// eslint-disable-next-line import/order
 import { Offers } from '@agoric/inter-protocol/src/clientSupport.js';
 
 const collateralBrandKey = 'ATOM';
@@ -14,8 +13,8 @@ const collateralBrandKey = 'ATOM';
 const setup = async context => {
   const { alice } = context.actors;
 
-  // Pre-fund alice's wallet if needed
-  await alice.getLatestUpdateRecord();
+  // Ensure alice's wallet is initialized
+  alice.getLatestUpdateRecord();
 
   return {
     vaultsToOpen: Number(context.options.vaults || 10),

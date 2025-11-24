@@ -16,6 +16,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const VAULTS_PER_ROUND = 10;
+const NS_TO_MS = 1_000_000;
+const BENCHMARK_NAME = 'stress vaults';
 const TEMP_OUTPUT = 'benchmark-output.json';
 const FINAL_OUTPUT = 'benchmark-stress-vaults.json';
 const BENCHMARK_SCRIPT = join(
@@ -52,16 +54,18 @@ try {
   const benchmarkData = JSON.parse(readFileSync(TEMP_OUTPUT, 'utf8'));
 
   // Extract the stress vaults benchmark results
-  const stressVaultsData = benchmarkData['stress vaults'];
+  const stressVaultsData = benchmarkData[BENCHMARK_NAME];
 
   if (!stressVaultsData) {
-    console.error('Error: "stress vaults" benchmark data not found in output');
+    console.error(
+      `Error: "${BENCHMARK_NAME}" benchmark data not found in output`,
+    );
     process.exit(1);
   }
 
   // Calculate avgPerVaultMs
   // timePerRound is in nanoseconds, convert to milliseconds
-  const timePerRoundMs = stressVaultsData.timePerRound / 1_000_000;
+  const timePerRoundMs = stressVaultsData.timePerRound / NS_TO_MS;
   const avgPerVaultMs = timePerRoundMs / VAULTS_PER_ROUND;
 
   // Create the output format expected by the workflow

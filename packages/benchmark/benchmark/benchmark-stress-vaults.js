@@ -1,7 +1,5 @@
-import { bench } from '@aglocal/benchmark';
-
-// eslint-disable-next-line import/order
 import { Offers } from '@agoric/inter-protocol/src/clientSupport.js';
+import { bench } from '../src/benchmarkerator.js';
 
 const collateralBrandKey = 'ATOM';
 
@@ -12,10 +10,10 @@ const collateralBrandKey = 'ATOM';
 
 const setup = async context => {
   const { alice } = context.actors;
-  
+
   // Pre-fund alice's wallet if needed
   await alice.getLatestUpdateRecord();
-  
+
   return {
     vaultsToOpen: Number(context.options.vaults || 10),
   };
@@ -24,7 +22,7 @@ const setup = async context => {
 const executeRound = async (context, round) => {
   const { alice } = context.actors;
   const { vaultsToOpen } = context.config;
-  
+
   const openVault = async i => {
     const offerId = `stress-vault-${round}-${i}`;
     await alice.executeOfferMaker(Offers.vaults.OpenVault, {

@@ -19,7 +19,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@aglocal/benchmark@workspace:packages/benchmark":
+"@aglocal/benchmark@workspace:*, @aglocal/benchmark@workspace:packages/benchmark":
   version: 0.0.0-use.local
   resolution: "@aglocal/benchmark@workspace:packages/benchmark"
   dependencies:
@@ -38,6 +38,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@aglocal/boot@workspace:packages/boot"
   dependencies:
+    "@aglocal/benchmark": "workspace:*"
     "@aglocal/fast-usdc-deploy": "workspace:*"
     "@agoric/builders": "workspace:*"
     "@agoric/client-utils": "workspace:*"

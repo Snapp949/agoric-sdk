@@ -60,6 +60,10 @@ try {
     console.error(
       `Error: "${BENCHMARK_NAME}" benchmark data not found in output`,
     );
+    console.error(
+      'Available benchmarks:',
+      Object.keys(benchmarkData).filter(key => key !== 'setup'),
+    );
     process.exit(1);
   }
 

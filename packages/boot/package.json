@@ -7,6 +7,7 @@
   "repository": "https://github.com/Agoric/agoric-sdk",
   "scripts": {
     "build": "exit 0",
+    "bench": "node run-bench.js",
     "clean": "rm -rf bundles/config.*",
     "test": "ava",
     "test:xs": "SWINGSET_WORKER_TYPE=xs-worker ava test",
@@ -19,6 +20,7 @@
   "author": "Agoric",
   "license": "Apache-2.0",
   "dependencies": {
+    "@aglocal/benchmark": "workspace:*",
     "@agoric/builders": "workspace:*",
     "@agoric/client-utils": "workspace:*",
     "@agoric/cosmic-proto": "workspace:*",

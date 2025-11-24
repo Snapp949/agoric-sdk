@@ -1,4 +1,5 @@
 import { Offers } from '@agoric/inter-protocol/src/clientSupport.js';
+import { assert } from '@endo/errors';
 import { bench } from '../src/benchmarkerator.js';
 
 const collateralBrandKey = 'ATOM';

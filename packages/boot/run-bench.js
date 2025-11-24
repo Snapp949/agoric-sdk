@@ -5,8 +5,8 @@
  * This script runs the benchmark from packages/benchmark and extracts the avgPerVaultMs metric.
  */
 
-import { execSync } from 'child_process';
-import { readFileSync, writeFileSync, unlinkSync } from 'fs';
+import { execFileSync } from 'child_process';
+import { readFileSync, writeFileSync, unlinkSync, existsSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 
@@ -29,8 +29,18 @@ try {
   console.log('Running vault stress benchmark...');
 
   // Run the benchmark with output to temp file
-  execSync(
-    `node ${BENCHMARK_SCRIPT} --output ${TEMP_OUTPUT} --vat-type local -c vaults 10`,
+  execFileSync(
+    'node',
+    [
+      BENCHMARK_SCRIPT,
+      '--output',
+      TEMP_OUTPUT,
+      '--vat-type',
+      'local',
+      '-c',
+      'vaults',
+      '10',
+    ],
     {
       stdio: 'inherit',
       cwd: process.cwd(),
@@ -70,10 +80,12 @@ try {
   console.log(`\nBenchmark complete!`);
   console.log(`Average time per vault: ${avgPerVaultMs.toFixed(3)}ms`);
   console.log(`Results written to ${FINAL_OUTPUT}`);
-
-  // Clean up temp file
-  unlinkSync(TEMP_OUTPUT);
 } catch (error) {
   console.error('Error running benchmark:', error.message);
   process.exit(1);
+} finally {
+  // Clean up temp file if it exists
+  if (existsSync(TEMP_OUTPUT)) {
+    unlinkSync(TEMP_OUTPUT);
+  }
 }

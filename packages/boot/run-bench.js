@@ -15,6 +15,7 @@ const __filename = fileURLToPath(import.meta.url);
 // eslint-disable-next-line no-underscore-dangle
 const __dirname = dirname(__filename);
 
+const VAULTS_PER_ROUND = 10;
 const TEMP_OUTPUT = 'benchmark-output.json';
 const FINAL_OUTPUT = 'benchmark-stress-vaults.json';
 const BENCHMARK_SCRIPT = join(
@@ -39,7 +40,7 @@ try {
       'local',
       '-c',
       'vaults',
-      '10',
+      String(VAULTS_PER_ROUND),
     ],
     {
       stdio: 'inherit',
@@ -61,8 +62,7 @@ try {
   // Calculate avgPerVaultMs
   // timePerRound is in nanoseconds, convert to milliseconds
   const timePerRoundMs = stressVaultsData.timePerRound / 1_000_000;
-  const vaultsPerRound = 10; // From the -c vaults 10 option
-  const avgPerVaultMs = timePerRoundMs / vaultsPerRound;
+  const avgPerVaultMs = timePerRoundMs / VAULTS_PER_ROUND;
 
   // Create the output format expected by the workflow
   const output = {
@@ -71,13 +71,13 @@ try {
     rounds: stressVaultsData.rounds,
     cranks: stressVaultsData.cranks,
     cranksPerRound: stressVaultsData.cranksPerRound,
-    vaultsPerRound,
+    vaultsPerRound: VAULTS_PER_ROUND,
   };
 
   // Write the final output
   writeFileSync(FINAL_OUTPUT, JSON.stringify(output, null, 2));
 
-  console.log(`\nBenchmark complete!`);
+  console.log('\nBenchmark complete!');
   console.log(`Average time per vault: ${avgPerVaultMs.toFixed(3)}ms`);
   console.log(`Results written to ${FINAL_OUTPUT}`);
 } catch (error) {

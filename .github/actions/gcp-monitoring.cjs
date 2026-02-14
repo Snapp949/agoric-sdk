@@ -1,6 +1,5 @@
 // Check if GCP_CREDENTIALS is set
-if (!process.env.GCP_CREDENTIALS || 
-    (typeof process.env.GCP_CREDENTIALS === 'string' && process.env.GCP_CREDENTIALS.trim() === '')) {
+if (!process.env.GCP_CREDENTIALS || process.env.GCP_CREDENTIALS.trim() === '') {
   console.log('GCP_CREDENTIALS not set. Metrics module will not be functional.');
   // Export stub functions since this is a module
   module.exports = {

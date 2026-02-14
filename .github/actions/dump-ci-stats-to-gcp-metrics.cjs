@@ -1,6 +1,6 @@
 // Check if GCP_CREDENTIALS is set before loading the library
 // This prevents "Unexpected end of JSON input" errors when credentials are not available
-if (!process.env.GCP_CREDENTIALS) {
+if (!process.env.GCP_CREDENTIALS || !process.env.GCP_CREDENTIALS.trim()) {
   console.log('GCP_CREDENTIALS not set. Skipping metrics reporting.');
   process.exit(0);
 }

@@ -1,12 +1,19 @@
-const Monitoring = require('@google-cloud/monitoring');
-
 // Check if GCP_CREDENTIALS is set
 if (!process.env.GCP_CREDENTIALS || process.env.GCP_CREDENTIALS.trim() === '') {
   console.log('GCP_CREDENTIALS not set. Skipping metrics reporting.');
   process.exit(0);
 }
 
-const gcpCredentials = JSON.parse(process.env.GCP_CREDENTIALS);
+let gcpCredentials;
+try {
+  gcpCredentials = JSON.parse(process.env.GCP_CREDENTIALS);
+} catch (error) {
+  console.error('Failed to parse GCP_CREDENTIALS:', error.message);
+  console.log('Skipping metrics reporting due to invalid GCP_CREDENTIALS.');
+  process.exit(0);
+}
+
+const Monitoring = require('@google-cloud/monitoring');
 const monitoring = new Monitoring.MetricServiceClient({
   projectId: gcpCredentials.project_id,
   credentials: {

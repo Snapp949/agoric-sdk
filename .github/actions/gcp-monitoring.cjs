@@ -1,6 +1,33 @@
 const Monitoring = require('@google-cloud/monitoring');
 
-const gcpCredentials = JSON.parse(process.env.GCP_CREDENTIALS);
+// Check if GCP_CREDENTIALS is set
+if (!process.env.GCP_CREDENTIALS || process.env.GCP_CREDENTIALS.trim() === '') {
+  console.log('GCP_CREDENTIALS not set. Metrics module will not be functional.');
+  // Export stub functions since this is a module
+  module.exports = {
+    sendMetricsToGCP: async () => {
+      console.log('GCP_CREDENTIALS not configured. Skipping metrics.');
+    },
+    makeTimeSeries: () => [],
+  };
+  return;
+}
+
+let gcpCredentials;
+try {
+  gcpCredentials = JSON.parse(process.env.GCP_CREDENTIALS);
+} catch (error) {
+  console.error('Failed to parse GCP_CREDENTIALS:', error.message);
+  console.log('Metrics module will not be functional due to invalid GCP_CREDENTIALS.');
+  // Export stub functions since this is a module
+  module.exports = {
+    sendMetricsToGCP: async () => {
+      console.log('GCP_CREDENTIALS invalid. Skipping metrics.');
+    },
+    makeTimeSeries: () => [],
+  };
+  return;
+}
 const projectId = gcpCredentials.project_id;
 
 const monitoring = new Monitoring.MetricServiceClient({

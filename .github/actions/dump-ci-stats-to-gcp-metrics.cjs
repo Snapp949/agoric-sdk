@@ -1,11 +1,10 @@
-const Monitoring = require('@google-cloud/monitoring');
-
-// Check if GCP_CREDENTIALS is set
+// Check if GCP_CREDENTIALS is set before requiring dependencies
 if (!process.env.GCP_CREDENTIALS || process.env.GCP_CREDENTIALS.trim() === '') {
   console.log('GCP_CREDENTIALS not set. Skipping metrics reporting.');
   process.exit(0);
 }
 
+const Monitoring = require('@google-cloud/monitoring');
 const gcpCredentials = JSON.parse(process.env.GCP_CREDENTIALS);
 const monitoring = new Monitoring.MetricServiceClient({
   projectId: gcpCredentials.project_id,

@@ -1,3 +1,9 @@
+// Check if GCP_CREDENTIALS is set and valid before requiring the module
+if (!process.env.GCP_CREDENTIALS || process.env.GCP_CREDENTIALS.trim() === '') {
+  console.log('GCP_CREDENTIALS not set. Skipping metrics upload.');
+  process.exit(0);
+}
+
 const Monitoring = require('@google-cloud/monitoring');
 
 const gcpCredentials = JSON.parse(process.env.GCP_CREDENTIALS);

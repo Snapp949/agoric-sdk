@@ -10,11 +10,9 @@ if (!process.env.GCP_CREDENTIALS || process.env.GCP_CREDENTIALS.trim() === '') {
   };
 } else {
   let gcpCredentials;
-  let parseError = false;
   try {
     gcpCredentials = JSON.parse(process.env.GCP_CREDENTIALS);
   } catch (error) {
-    parseError = true;
     console.error('Failed to parse GCP_CREDENTIALS:', error.message);
     console.log('Metrics module will not be functional due to invalid GCP_CREDENTIALS.');
     // Export stub functions since this is a module
@@ -26,7 +24,7 @@ if (!process.env.GCP_CREDENTIALS || process.env.GCP_CREDENTIALS.trim() === '') {
     };
   }
 
-  if (!parseError && gcpCredentials) {
+  if (gcpCredentials) {
     const Monitoring = require('@google-cloud/monitoring');
     const projectId = gcpCredentials.project_id;
 

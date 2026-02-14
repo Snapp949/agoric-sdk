@@ -1,3 +1,10 @@
+// Check if GCP_CREDENTIALS is set before loading the library
+// This prevents "Unexpected end of JSON input" errors when credentials are not available
+if (!process.env.GCP_CREDENTIALS) {
+  console.log('GCP_CREDENTIALS not set. Skipping metrics reporting.');
+  process.exit(0);
+}
+
 const Monitoring = require('@google-cloud/monitoring');
 
 const gcpCredentials = JSON.parse(process.env.GCP_CREDENTIALS);

@@ -1,5 +1,6 @@
 // Check if GCP_CREDENTIALS is set
-if (!process.env.GCP_CREDENTIALS || process.env.GCP_CREDENTIALS.trim() === '') {
+if (!process.env.GCP_CREDENTIALS || 
+    (typeof process.env.GCP_CREDENTIALS === 'string' && process.env.GCP_CREDENTIALS.trim() === '')) {
   console.log('GCP_CREDENTIALS not set. Skipping metrics reporting.');
   process.exit(0);
 }

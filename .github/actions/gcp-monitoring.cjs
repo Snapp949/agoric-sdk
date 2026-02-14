@@ -1,5 +1,6 @@
 // Check if GCP_CREDENTIALS is set
-if (!process.env.GCP_CREDENTIALS || process.env.GCP_CREDENTIALS.trim() === '') {
+if (!process.env.GCP_CREDENTIALS || 
+    (typeof process.env.GCP_CREDENTIALS === 'string' && process.env.GCP_CREDENTIALS.trim() === '')) {
   console.log('GCP_CREDENTIALS not set. Metrics module will not be functional.');
   // Export stub functions since this is a module
   module.exports = {
@@ -10,9 +11,11 @@ if (!process.env.GCP_CREDENTIALS || process.env.GCP_CREDENTIALS.trim() === '') {
   };
 } else {
   let gcpCredentials;
+  let parseError = false;
   try {
     gcpCredentials = JSON.parse(process.env.GCP_CREDENTIALS);
   } catch (error) {
+    parseError = true;
     console.error('Failed to parse GCP_CREDENTIALS:', error.message);
     console.log('Metrics module will not be functional due to invalid GCP_CREDENTIALS.');
     // Export stub functions since this is a module
@@ -24,7 +27,7 @@ if (!process.env.GCP_CREDENTIALS || process.env.GCP_CREDENTIALS.trim() === '') {
     };
   }
 
-  if (gcpCredentials) {
+  if (!parseError && gcpCredentials) {
     const Monitoring = require('@google-cloud/monitoring');
     const projectId = gcpCredentials.project_id;
 

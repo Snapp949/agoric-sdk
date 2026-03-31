@@ -6,6 +6,11 @@ if (!process.env.GCP_CREDENTIALS || process.env.GCP_CREDENTIALS.trim() === '') {
 
 const Monitoring = require('@google-cloud/monitoring');
 
+if (!process.env.GCP_CREDENTIALS || process.env.GCP_CREDENTIALS.trim() === '') {
+  console.log('GCP_CREDENTIALS not set, skipping metrics upload.');
+  process.exit(0);
+}
+
 const gcpCredentials = JSON.parse(process.env.GCP_CREDENTIALS);
 const monitoring = new Monitoring.MetricServiceClient({
   projectId: gcpCredentials.project_id,

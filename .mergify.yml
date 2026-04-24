@@ -49,6 +49,7 @@ priority_rules:
       - label=priority:high
     priority: high
 
+    allow_checks_interruption: true
 queue_rules:
   - name: rebase
     commit_message_template: *commit-message-template
